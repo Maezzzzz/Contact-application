@@ -4,45 +4,50 @@ import java.io.*;
 public class Contacts {
     static ArrayList<String> contacts = new ArrayList<String>();
     static Scanner keyboard = new Scanner(System.in);
-    int option = 0;
+    static int option = 0;
     public static void main(String[] args) {
 
         instructions();
 
         start();
-
-        save();
-
-        //System.out.println(contacts);
     }
 
     private static void instructions() {
         System.out.println("Welcome to the contact application!");
         System.out.println("The system allows you to add, store, search and delete contacts.");
-
     }
 
-    private static void start(int option){
-        while (option != 4) {
+    private static void start(){
+        while (option != 5) {
             System.out.println("Enter '0' to import contacts");
             System.out.println("Enter '1' to add a contact.");
             System.out.println("Enter '2' to delete a contact.");
             System.out.println("Enter '3' to search for a contact.");
-            System.out.println("Enter '4' to save and quit.");
+            System.out.println("Enter '4' to view contacts");
+            System.out.println("Enter '5' to save and quit.");
 
-            if(keyboard.nextInt() == 0) {
+            option = keyboard.nextInt();
+            if(option == 0) {
                 importContacts();
             }
-            if(keyboard.nextInt() == 1) {
+
+            if(option == 1) {
+                addContact();
+            }
+
+            if (option == 2) {
+                deleteContact();
+            }
+
+            if(option == 3) {
                 //TODO
             }
-            if(keyboard.nextInt() == 2) {
+
+            if(option == 4) {
                 //TODO
             }
-            if(keyboard.nextInt() == 3) {
-                //TODO
-            }
-            if(keyboard.nextInt() == 4) {
+
+            if(option == 5) {
                 //TODO
             }
         }
@@ -50,13 +55,55 @@ public class Contacts {
     }
 
     private static void importContacts() {
-        //TODO
+        contacts.clear();
+        try {
+            File myObj = new File("contacts.txt");
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                contacts.add(data);
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        System.out.println("Contacts imported successfully!");
     }
 
     private static void addContact() {
         System.out.print("Enter Contacts name: ");
         contacts.add(keyboard.next());
+        sort();
+    }
 
+    private static void sort(){
+        Collections.sort(contacts);
+    }
+
+    private static void deleteContact() {
+        System.out.print("Enter Contacts name to be deleted: ");
+        String nameToDelete = keyboard.next();
+        if(contacts.size() >= 1) {
+            int left = 0;
+            int right = contacts.size() - 1;
+
+            while(left <= right) {
+                int mid = left + (right-left) / 2;
+                
+                if(nameToDelete.toLowerCase().equals(contacts.get(mid).toLowerCase())) {
+                    contacts.remove(mid);
+                    System.out.println(nameToDelete + " was removed from your contacts.");
+                }
+                if(nameToDelete.toLowerCase().compareTo(contacts.get(mid).toLowerCase()) > 0) {
+                    left = mid + 1;
+                }
+                if(nameToDelete.toLowerCase().compareTo(contacts.get(mid).toLowerCase()) < 0) {
+                    right = mid - 1;
+                }
+            }
+        }
+        System.out.println(nameToDelete + " is not in your contacts.");
     }
 
     private static void save() {
@@ -73,11 +120,7 @@ public class Contacts {
         }
     }
 
-    private static void sort(){
-        Collections.sort(contacts);
-    }
-
-    private static void searchBinary(String nameToSearch) {
+    private static boolean searchBinary(String nameToSearch) {
         if(contacts.size() >= 1) {
             int left = 0;
             int right = contacts.size() - 1;
@@ -86,21 +129,16 @@ public class Contacts {
                 int mid = left + (right-left) / 2;
 
                 if(nameToSearch.toLowerCase().equals(contacts.get(mid).toLowerCase())) {
-                    System.out.println(nameToSearch + " was found!");
-                    return;
+                    return true;
                 }
-
                 if(nameToSearch.toLowerCase().compareTo(contacts.get(mid).toLowerCase()) > 0) {
                     left = mid + 1;
                 }
-
                 if(nameToSearch.toLowerCase().compareTo(contacts.get(mid).toLowerCase()) < 0) {
                     right = mid - 1;
                 }
             }
-
-            System.out.println(nameToSearch + " was not found.");
         }
+        return false;
     }
-
 }
