@@ -18,7 +18,7 @@ public class Contacts {
     }
 
     private static void start(){
-        while (option != 5 || option != 6) {
+        while (true) {
             System.out.println("Enter '0' to import contacts");
             System.out.println("Enter '1' to add a contact.");
             System.out.println("Enter '2' to delete a contact.");
@@ -51,14 +51,13 @@ public class Contacts {
             if(option == 4) {
                 print();
             }
+            if(option == 5) {
+                save();
+            }
+            if (option == 6) {
+                System.exit(0);
+            }
         }
-        if(option == 5) {
-            save();
-        }
-        if (option == 6) {
-            System.exit(0);
-        }
-
     }
 
     private static void importContacts() {
@@ -79,8 +78,9 @@ public class Contacts {
     }
 
     private static void addContact() {
-        System.out.print("Enter Contacts name: ");
+        System.out.print("Enter contacts name: ");
         contacts.add(keyboard.next());
+        System.out.println("Contact added.");
         sort();
     }
 
@@ -121,11 +121,12 @@ public class Contacts {
                 myWriter.write(contact + "\n");
             }
             myWriter.close();
-            System.out.println("Successfully wrote to the file.");
+            System.out.println("Successfully saved contacts.");
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+        System.exit(0);
     }
 
     private static void search(){
