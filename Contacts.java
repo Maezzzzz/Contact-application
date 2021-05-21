@@ -61,7 +61,6 @@ public class Contacts {
     }
 
     private static void importContacts() {
-        contacts.clear();
         try {
             File myObj = new File("contacts.txt");
             Scanner myReader = new Scanner(myObj);
@@ -75,6 +74,8 @@ public class Contacts {
             e.printStackTrace();
         }
         System.out.println("Contacts imported successfully!");
+        sort();
+        return;
     }
 
     private static void addContact() {
@@ -87,7 +88,7 @@ public class Contacts {
     private static void sort(){
         Collections.sort(contacts);
     }
-
+    
     private static void deleteContact() {
         System.out.print("Enter Contacts name to be deleted: ");
         String nameToDelete = keyboard.next();
