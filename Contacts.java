@@ -2,8 +2,8 @@ import java.util.*;
 import java.io.*;
 
 public class Contacts {
-    static ArrayList<String> contacts = new ArrayList<String>();
-    static Scanner keyboard = new Scanner(System.in);
+    static final ArrayList<String> contacts = new ArrayList<>();
+    static final Scanner keyboard = new Scanner(System.in);
     static int option = 0;
     public static void main(String[] args) {
 
@@ -18,15 +18,20 @@ public class Contacts {
     }
 
     private static void start(){
-        while (option != 5) {
+        while (option != 5 || option != 6) {
             System.out.println("Enter '0' to import contacts");
             System.out.println("Enter '1' to add a contact.");
             System.out.println("Enter '2' to delete a contact.");
             System.out.println("Enter '3' to search for a contact.");
             System.out.println("Enter '4' to view contacts");
             System.out.println("Enter '5' to save and quit.");
-
+            System.out.println("Enter '6' to quit without saving.");
             option = keyboard.nextInt();
+
+            if(option > 6 || option < 0) {
+                System.out.println("Incorrect input!");
+                start();
+            }
             if(option == 0) {
                 importContacts();
             }
@@ -40,18 +45,20 @@ public class Contacts {
             }
 
             if(option == 3) {
-                //TODO
+                search();
             }
 
             if(option == 4) {
-                //TODO
-            }
-
-            if(option == 5) {
-                //TODO
+                print();
             }
         }
-        save();
+        if(option == 5) {
+            save();
+        }
+        if (option == 6) {
+            System.exit(0);
+        }
+
     }
 
     private static void importContacts() {
@@ -90,10 +97,11 @@ public class Contacts {
 
             while(left <= right) {
                 int mid = left + (right-left) / 2;
-                
-                if(nameToDelete.toLowerCase().equals(contacts.get(mid).toLowerCase())) {
+
+                if(nameToDelete.equalsIgnoreCase(contacts.get(mid))) {
                     contacts.remove(mid);
                     System.out.println(nameToDelete + " was removed from your contacts.");
+                    return;
                 }
                 if(nameToDelete.toLowerCase().compareTo(contacts.get(mid).toLowerCase()) > 0) {
                     left = mid + 1;
@@ -109,8 +117,8 @@ public class Contacts {
     private static void save() {
         try {
             FileWriter myWriter = new FileWriter("Contacts.txt");
-            for(int i = 0; i < contacts.size(); i++) {
-                myWriter.write(contacts.get(i) + "\n");
+            for (String contact : contacts) {
+                myWriter.write(contact + "\n");
             }
             myWriter.close();
             System.out.println("Successfully wrote to the file.");
@@ -120,7 +128,10 @@ public class Contacts {
         }
     }
 
-    private static boolean searchBinary(String nameToSearch) {
+    private static void search(){
+        System.out.print("Enter the contacts name you would like to search for: ");
+        String nameToSearch = keyboard.next();
+
         if(contacts.size() >= 1) {
             int left = 0;
             int right = contacts.size() - 1;
@@ -128,8 +139,9 @@ public class Contacts {
             while(left <= right) {
                 int mid = left + (right-left) / 2;
 
-                if(nameToSearch.toLowerCase().equals(contacts.get(mid).toLowerCase())) {
-                    return true;
+                if(nameToSearch.equalsIgnoreCase(contacts.get(mid))) {
+                    System.out.println(nameToSearch + " was found!");
+                    return;
                 }
                 if(nameToSearch.toLowerCase().compareTo(contacts.get(mid).toLowerCase()) > 0) {
                     left = mid + 1;
@@ -139,6 +151,12 @@ public class Contacts {
                 }
             }
         }
-        return false;
+        System.out.println(nameToSearch + " was not found.");
+    }
+
+    private static void print() {
+        for (String contact : contacts) {
+            System.out.println(contact);
+        }
     }
 }
