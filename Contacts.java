@@ -1,68 +1,85 @@
-import java.util.*;
-import java.io.*;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
 
 public class Contacts {
     static final ArrayList<String> contacts = new ArrayList<>();
     static final Scanner keyboard = new Scanner(System.in);
-    static int option = 0;
     public static void main(String[] args) {
 
-        instructions();
+        JFrame frame = new JFrame("Contacts Application");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 600);
 
-        start();
+        JPanel panel = new JPanel(new GridLayout(8,1));
+
+        JLabel instructions = new JLabel("<html> Welcome to the contact application!<br/>" +
+                " The system allows you to add, store, search and delete contacts.</html>" );
+        instructions.setHorizontalTextPosition(SwingConstants.CENTER);
+
+        JButton importContacts = new JButton("Import contacts");
+        importContacts.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                        "JText Files", "txt");
+                chooser.setFileFilter(filter);
+                int returnVal = chooser.showOpenDialog(frame);
+                if(returnVal == JFileChooser.APPROVE_OPTION) {
+                    if(importContacts(chooser.getSelectedFile().getName())) {
+                        JOptionPane.showMessageDialog(frame, "Contacts imported succesfully!");
+                    }else {
+                        JOptionPane.showMessageDialog(frame, "Contacts could not be imported.");
+                    }
+                }
+            }
+        });
+
+        JButton addContact = new JButton("Add contact");
+        addContact.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        JButton deleteContact = new JButton("Delete contact");
+
+        JButton searchContacts = new JButton("Search contacts");
+
+        JButton viewContacts = new JButton("View contacts");
+
+        JButton saveAndQuit = new JButton("Save and quit");
+
+        JButton quit = new JButton("Quit without saving");
+
+        panel.add(instructions);
+        panel.add(importContacts);
+        panel.add(addContact);
+        panel.add(deleteContact);
+        panel.add(searchContacts);
+        panel.add(viewContacts);
+        panel.add(saveAndQuit);
+        panel.add(quit);
+
+        frame.add(panel);
+        frame.pack();
+        frame.setVisible(true);
     }
 
-    private static void instructions() {
-        System.out.println("Welcome to the contact application!");
-        System.out.println("The system allows you to add, store, search and delete contacts.");
-    }
-
-    private static void start(){
-        while (true) {
-            System.out.println("Enter '0' to import contacts");
-            System.out.println("Enter '1' to add a contact.");
-            System.out.println("Enter '2' to delete a contact.");
-            System.out.println("Enter '3' to search for a contact.");
-            System.out.println("Enter '4' to view contacts");
-            System.out.println("Enter '5' to save and quit.");
-            System.out.println("Enter '6' to quit without saving.");
-            option = keyboard.nextInt();
-
-            if(option > 6 || option < 0) {
-                System.out.println("Incorrect input!");
-                start();
-            }
-            if(option == 0) {
-                importContacts();
-            }
-
-            if(option == 1) {
-                addContact();
-            }
-
-            if (option == 2) {
-                deleteContact();
-            }
-
-            if(option == 3) {
-                search();
-            }
-
-            if(option == 4) {
-                print();
-            }
-            if(option == 5) {
-                save();
-            }
-            if (option == 6) {
-                System.exit(0);
-            }
-        }
-    }
-
-    private static void importContacts() {
+    private static Boolean importContacts(String filePath) {
         try {
-            File myObj = new File("contacts.txt");
+            File myObj = new File(filePath);
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
@@ -72,10 +89,10 @@ public class Contacts {
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
+            return false;
         }
-        System.out.println("Contacts imported successfully!");
         sort();
-        return;
+        return true;
     }
 
     private static void addContact() {
@@ -88,7 +105,7 @@ public class Contacts {
     private static void sort(){
         Collections.sort(contacts);
     }
-    
+
     private static void deleteContact() {
         System.out.print("Enter Contacts name to be deleted: ");
         String nameToDelete = keyboard.next();
