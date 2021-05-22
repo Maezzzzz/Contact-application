@@ -49,19 +49,94 @@ public class Contacts {
         addContact.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                JFrame frame = new JFrame();
+                String add = JOptionPane.showInputDialog(frame, "Enter contact:");
+                addContact(add);
             }
         });
 
         JButton deleteContact = new JButton("Delete contact");
+        deleteContact.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame frame = new JFrame();
+                String delete = JOptionPane.showInputDialog(frame, "Enter contact:");
+                deleteContact(delete);
+                if(deleteContact(delete)) {
+                    JOptionPane.showMessageDialog(frame,"Contact deleted.");
+                }else {
+                    JOptionPane.showMessageDialog(frame, "Contact does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
 
         JButton searchContacts = new JButton("Search contacts");
+        searchContacts.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame frame = new JFrame();
+                String search = JOptionPane.showInputDialog(frame, "Enter contact to search for:");
+                if(search(search)){
+                    JOptionPane.showMessageDialog(frame, "Contact Found!");
+                }else {
+                    JOptionPane.showMessageDialog(frame, "Contact not found.", "Search error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
 
         JButton viewContacts = new JButton("View contacts");
+        viewContacts.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                StringBuilder builder = new StringBuilder();
+                for (int a = 0; a < contacts.size(); a++) {
+                    builder.append(contacts.get(a)).append(" \n");
+                }
+                JTextArea textArea = new JTextArea(String.valueOf(builder));
+                JScrollPane scrollPane = new JScrollPane(textArea);
+                textArea.setLineWrap(true);
+                textArea.setWrapStyleWord(true);
+                scrollPane.setPreferredSize( new Dimension( 300, 300 ) );
+                JOptionPane.showMessageDialog(null, scrollPane, "Contacts",
+                        JOptionPane.PLAIN_MESSAGE);
+            }
+        });
 
         JButton saveAndQuit = new JButton("Save and quit");
+        saveAndQuit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame parentFrame = new JFrame();
+
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Specify a file to save");
+
+                int userSelection = fileChooser.showSaveDialog(parentFrame);
+
+                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                    File fileToSave = fileChooser.getSelectedFile();
+                    if(save(fileToSave.getAbsolutePath())) {
+                        //custom title, no icon
+                        JOptionPane.showMessageDialog(frame,
+                                "Contacts have been saved successfully!",
+                                "Contacts saved!",
+                                JOptionPane.PLAIN_MESSAGE);
+                                System.exit(0);
+                    }else {
+                        JOptionPane.showMessageDialog(frame, "File could not be saved.", "Error file saving",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
 
         JButton quit = new JButton("Quit without saving");
+        quit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
 
         panel.add(instructions);
         panel.add(importContacts);
@@ -77,7 +152,7 @@ public class Contacts {
         frame.setVisible(true);
     }
 
-    private static Boolean importContacts(String filePath) {
+    private static boolean importContacts(String filePath) {
         try {
             File myObj = new File(filePath);
             Scanner myReader = new Scanner(myObj);
@@ -95,10 +170,8 @@ public class Contacts {
         return true;
     }
 
-    private static void addContact() {
-        System.out.print("Enter contacts name: ");
-        contacts.add(keyboard.next());
-        System.out.println("Contact added.");
+    private static void addContact(String contact) {
+        contacts.add(contact);
         sort();
     }
 
@@ -106,9 +179,7 @@ public class Contacts {
         Collections.sort(contacts);
     }
 
-    private static void deleteContact() {
-        System.out.print("Enter Contacts name to be deleted: ");
-        String nameToDelete = keyboard.next();
+    private static boolean deleteContact(String name) {
         if(contacts.size() >= 1) {
             int left = 0;
             int right = contacts.size() - 1;
@@ -116,40 +187,37 @@ public class Contacts {
             while(left <= right) {
                 int mid = left + (right-left) / 2;
 
-                if(nameToDelete.equalsIgnoreCase(contacts.get(mid))) {
+                if(name.equalsIgnoreCase(contacts.get(mid))) {
                     contacts.remove(mid);
-                    System.out.println(nameToDelete + " was removed from your contacts.");
-                    return;
+                    return true;
                 }
-                if(nameToDelete.toLowerCase().compareTo(contacts.get(mid).toLowerCase()) > 0) {
+                if(name.compareToIgnoreCase(contacts.get(mid)) > 0) {
                     left = mid + 1;
                 }
-                if(nameToDelete.toLowerCase().compareTo(contacts.get(mid).toLowerCase()) < 0) {
+                if(name.compareToIgnoreCase(contacts.get(mid)) < 0) {
                     right = mid - 1;
                 }
             }
         }
-        System.out.println(nameToDelete + " is not in your contacts.");
+        return false;
     }
 
-    private static void save() {
+    private static boolean save(String filepath) {
         try {
-            FileWriter myWriter = new FileWriter("Contacts.txt");
+            FileWriter myWriter = new FileWriter(filepath);
             for (String contact : contacts) {
                 myWriter.write(contact + "\n");
             }
             myWriter.close();
-            System.out.println("Successfully saved contacts.");
+            return true;
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        System.exit(0);
+        return false;
     }
 
-    private static void search(){
-        System.out.print("Enter the contacts name you would like to search for: ");
-        String nameToSearch = keyboard.next();
+    private static boolean search(String name){
 
         if(contacts.size() >= 1) {
             int left = 0;
@@ -158,24 +226,17 @@ public class Contacts {
             while(left <= right) {
                 int mid = left + (right-left) / 2;
 
-                if(nameToSearch.equalsIgnoreCase(contacts.get(mid))) {
-                    System.out.println(nameToSearch + " was found!");
-                    return;
+                if(name.equalsIgnoreCase(contacts.get(mid))) {
+                    return true;
                 }
-                if(nameToSearch.toLowerCase().compareTo(contacts.get(mid).toLowerCase()) > 0) {
+                if(name.compareToIgnoreCase(contacts.get(mid)) > 0) {
                     left = mid + 1;
                 }
-                if(nameToSearch.toLowerCase().compareTo(contacts.get(mid).toLowerCase()) < 0) {
+                if(name.compareToIgnoreCase(contacts.get(mid)) < 0) {
                     right = mid - 1;
                 }
             }
         }
-        System.out.println(nameToSearch + " was not found.");
-    }
-
-    private static void print() {
-        for (String contact : contacts) {
-            System.out.println(contact);
-        }
+        return false;
     }
 }
